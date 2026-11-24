@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  install:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Install (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: bash install.sh --config-dir "$RUNNER_TEMP/opencode-config"
+
+      - name: Verify (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: bash verify.sh "$RUNNER_TEMP/opencode-config"
+
+      - name: Refuse without --force (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: |
+          if bash install.sh --config-dir "$RUNNER_TEMP/opencode-config" >"$RUNNER_TEMP/refuse.log" 2>&1; then
+            echo "Expected the installer to refuse an existing installation"
+            cat "$RUNNER_TEMP/refuse.log"
+            exit 1
+          fi
+          echo "OK  installer refused without --force"
+
+      - name: Force reinstall (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: bash install.sh --config-dir "$RUNNER_TEMP/opencode-config" --force
+
+      - name: Verify after force (Linux / macOS)
+        if: runner.os != 'Windows'
+        run: bash verify.sh "$RUNNER_TEMP/opencode-config"
+
+      - name: Install (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./install.ps1 -ConfigDir "$env:RUNNER_TEMP/opencode-config"
+
+      - name: Verify (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./verify.ps1 -ConfigDir "$env:RUNNER_TEMP/opencode-config"
+
+      - name: Refuse without -Force (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $output = & pwsh -NoProfile -File ./install.ps1 -ConfigDir "$env:RUNNER_TEMP/opencode-config" 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host $output
+            throw "Expected install.ps1 to refuse an existing installation without -Force"
+          }
+          Write-Host "OK  installer refused without -Force"
+
+      - name: Force reinstall (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./install.ps1 -ConfigDir "$env:RUNNER_TEMP/opencode-config" -Force
+
+      - name: Verify after force (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./verify.ps1 -ConfigDir "$env:RUNNER_TEMP/opencode-config"
+
+      - name: Queue and AGENTS.md workflow tests
+        run: node tests/workflow.test.mjs
+
+      - name: Recent-session scanner test
+        run: node tests/recent-sessions.test.mjs

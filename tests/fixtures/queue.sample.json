@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "2026-11-20T10-00-00Z-a111",
+      "text": "Use pnpm instead of npm in this repository.",
+      "scope": "project",
+      "source": "correction",
+      "date": "2026-11-20T10:00:00Z",
+      "status": "pending",
+      "project": "__PROJECT__"
+    },
+    {
+      "id": "2026-11-21T11-30-00Z-b222",
+      "text": "use pnpm instead of npm in this repository",
+      "scope": "project",
+      "source": "user-remember",
+      "date": "2026-11-21T11:30:00Z",
+      "status": "pending",
+      "project": "__PROJECT__"
+    },
+    {
+      "id": "2026-11-22T09-15-00Z-c333",
+      "text": "Always run tests before committing.",
+      "scope": "global",
+      "source": "user-remember",
+      "date": "2026-11-22T09:15:00Z",
+      "status": "pending"
+    },
+    {
+      "id": "2026-11-23T08-05-00Z-d444",
+      "text": "Prefer named exports in TypeScript files.",
+      "scope": "project",
+      "source": "correction",
+      "date": "2026-11-23T08:05:00Z",
+      "status": "pending",
+      "project": "__OTHER_PROJECT__"
+    }
+  ]
+}
