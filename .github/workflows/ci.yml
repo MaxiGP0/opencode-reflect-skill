@@ -66,6 +66,7 @@ jobs:
             throw "Expected install.ps1 to refuse an existing installation without -Force"
           }
           Write-Host "OK  installer refused without -Force"
+          exit 0
 
       - name: Force reinstall (Windows)
         if: runner.os == 'Windows'
